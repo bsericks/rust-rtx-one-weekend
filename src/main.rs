@@ -14,6 +14,14 @@ fn main() {
 
     let v = Vec3::new(1.0, 2.0, 3.0);
 
+    let v2 = Vec3::new(1.0, 2.0, 3.3);
+
+    let mut v3 = v+v2;
+
+    println!("vec3[x] = {}", v3[2]);
+    v3[2] = 1.111;
+    println!("vec3[x] = {}", v3[2]);
+
     // Create a new progress bar with a specified length
     let pb = ProgressBar::new(image_height);
 
@@ -27,7 +35,6 @@ fn main() {
         for i in 0..image_width {
             let r = (i as f64 / (image_width-1) as f64) as f64;
             let g = (j as f64 / (image_height-1) as f64) as f64;
-            //println!("{} {}", r, g);
 
             let b = 0.0;
 
@@ -35,7 +42,7 @@ fn main() {
             let ig = (255.999 * g) as u32;
             let ib = (255.999 * b) as u32;
             
-            println!("{} {} {}", ir, ig, ib);
+            //println!("{} {} {}", ir, ig, ib);
         }
     }
 

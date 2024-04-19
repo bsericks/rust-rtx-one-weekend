@@ -1,109 +1,170 @@
 pub mod vec3 {
 
+    use std::ops::{Add, Sub, Neg, Mul, Div, Index, IndexMut, AddAssign, MulAssign, DivAssign};
+    use std::fmt;
+
+    #[derive(Copy, Clone)]
     pub struct Vec3 {
-        array: [f64; 3],
+        pub array: [f64; 3],
     }
 
     impl Vec3 {
         pub fn new(x: f64, y:f64, z:f64) -> Vec3 {
-            let mut new_vec: [f64; 3] = [0.0; 3];
-            new_vec[0] = x;
-            new_vec[1] = y;
-            new_vec[2] = z;
-            Vec3 { array: new_vec }
+            Vec3 { array: [x, y, z] }
+        }
+
+        pub fn x(self) -> f64 {
+            self.array[0]
+        }
+
+        pub fn y(self) -> f64 {
+            self.array[1]
+        }
+
+        pub fn z(self) -> f64 {
+            self.array[2]
+        }
+
+        pub fn length_squared(self) -> f64 {
+            self.array[0]*self.array[0] + self.array[1]*self.array[1] + self.array[2]*self.array[2]
+        }
+
+        pub fn length(self) -> f64 {
+            self.length_squared().sqrt()
+        }
+
+        pub fn dot(self, u: Vec3, v: Vec3) -> f64 {
+            u.x() * v.x() + u.y() * v.y() + u.z() * v.z() 
+        }
+
+        pub fn cross(self, u: Vec3, v: Vec3) -> Vec3 {
+            Vec3{array: [ u[1] * v[2] - u[2] * v[1],
+                          u[2] * v[0] - u[0] * v[2],
+                          u[0] * v[1] - u[1] * v[0]]}
+           
+        }
+
+        pub fn unit_vector(self, v: Vec3) -> Vec3 {
+            v / v.length()
+        }
+
+
+
+
+    }
+
+    impl Add for Vec3 {
+        type Output = Vec3;
+    
+        fn add(self, other: Vec3) -> Vec3 {
+            Vec3 {array: [self.x() + other.x(), self.y() + other.y(), self.z() + other.z()]}
         }
     }
 
-  //public:
-  //  double e[3];
-//
-  //  Vec3() : e{0,0,0} {}
-  //  Vec3(double e0, double e1, double e2) : e{e0, e1, e2} {}
-//
-  //  double x() const { return e[0]; }
-  //  double y() const { return e[1]; }
-  //  double z() const { return e[2]; }
-//
-  //  Vec3 operator-() const { return Vec3(-e[0], -e[1], -e[2]); }
-  //  double operator[](int i) const { return e[i]; }
-  //  double& operator[](int i) { return e[i]; }
-//
-  //  Vec3& operator+=(const Vec3& v) {
-  //      e[0] += v.e[0];
-  //      e[1] += v.e[1];
-  //      e[2] += v.e[2];
-  //      return *this;
-  //  }
-//
-  //  Vec3& operator*=(double t) {
-  //      e[0] *= t;
-  //      e[1] *= t;
-  //      e[2] *= t;
-  //      return *this;
-  //  }
-//
-  //  Vec3& operator/=(double t) {
-  //      return *this *= 1/t;
-  //  }
-//
-  //  double length() const {
-  //      return sqrt(length_squared());
-  //  }
-//
-  //  double length_squared() const {
-  //      return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
-  //  }
-//};
-//
-//// point3 is just an alias for Vec3, but useful for geometric clarity in the code.
-//using point3 = Vec3;
-//
-//
-//// Vector Utility Functions
-//
-//inline std::ostream& operator<<(std::ostream& out, const Vec3& v) {
-//    return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
-//}
-//
-//inline Vec3 operator+(const Vec3& u, const Vec3& v) {
-//    return Vec3(u.e[0] + v.e[0], u.e[1] + v.e[1], u.e[2] + v.e[2]);
-//}
-//
-//inline Vec3 operator-(const Vec3& u, const Vec3& v) {
-//    return Vec3(u.e[0] - v.e[0], u.e[1] - v.e[1], u.e[2] - v.e[2]);
-//}
-//
-//inline Vec3 operator*(const Vec3& u, const Vec3& v) {
-//    return Vec3(u.e[0] * v.e[0], u.e[1] * v.e[1], u.e[2] * v.e[2]);
-//}
-//
-//inline Vec3 operator*(double t, const Vec3& v) {
-//    return Vec3(t*v.e[0], t*v.e[1], t*v.e[2]);
-//}
-//
-//inline Vec3 operator*(const Vec3& v, double t) {
-//    return t * v;
-//}
-//
-//inline Vec3 operator/(const Vec3& v, double t) {
-//    return (1/t) * v;
-//}
-//
-//inline double dot(const Vec3& u, const Vec3& v) {
-//    return u.e[0] * v.e[0]
-//         + u.e[1] * v.e[1]
-//         + u.e[2] * v.e[2];
-//}
-//
-//inline Vec3 cross(const Vec3& u, const Vec3& v) {
-//    return Vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
-//                u.e[2] * v.e[0] - u.e[0] * v.e[2],
-//                u.e[0] * v.e[1] - u.e[1] * v.e[0]);
-//}
-//
-//inline Vec3 unit_vector(const Vec3& v) {
-//    return v / v.length();
-//}
+    impl Sub for Vec3 {
+        type Output = Vec3;
+    
+        fn sub(self, other: Vec3) -> Vec3 {
+            Vec3 {array: [self.x() - other.x(), self.y() - other.y(), self.z() - other.z()]}
+        }
+    } 
+
+    impl Neg for Vec3 {
+        type Output = Vec3;
+    
+        fn neg(self) -> Vec3 {
+            Vec3 {array: [-self.x(), -self.y(), -self.z()]}
+        }
+    } 
+
+    impl Mul for Vec3 {
+        type Output = Vec3;
+    
+        fn mul(self, other: Vec3) -> Vec3 {
+            Vec3 {array: [self.x() * other.x(), self.y() * other.y(), self.z() * other.z()]}
+        }
+    } 
+
+    impl Mul<f64> for Vec3 {
+        type Output = Vec3;
+    
+        fn mul(self, other: f64) -> Vec3 {
+            Vec3 {array: [self.x() * other, self.y() * other, self.z() * other]}
+        }
+    } 
+
+    
+    impl Div<f64> for Vec3 {
+        type Output = Vec3;
+    
+        fn div(self, other: f64) -> Vec3 {
+            Vec3 {array: (self * (1.0/other)).array}
+        }
+    } 
+
+    impl fmt::Display for Vec3 {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "x:{} y:{} z:{}", self.array[0], self.array[1], self.array[2])
+        }
+    }
+
+    impl Index<u32> for Vec3 {
+        type Output = f64;
+    
+        fn index(&self, index: u32) -> &Self::Output {
+            match index {
+                0 => &self.array[0],
+                1 => &self.array[1],
+                2 => &self.array[2],
+                //intentionally do a panic if this happens
+                _ => &self.array[3],
+            }
+        }
+    }
+    
+    impl IndexMut<u32> for Vec3 {
+        fn index_mut(&mut self, index: u32) -> &mut Self::Output {
+            match index {
+                0 => &mut self.array[0],
+                1 => &mut self.array[1],
+                2 => &mut self.array[2],
+                _ => &mut self.array[1],
+            }
+        }
+    }
+ 
+    impl AddAssign for Vec3 {
+        fn add_assign(&mut self, other: Self) {
+            *self = Self {
+                array: [self.array[0] + other.array[0], 
+                        self.array[1] + other.array[1],
+                        self.array[2] + other.array[2]],
+            };
+        }
+    }
+
+    impl MulAssign<f64> for Vec3 {
+        fn mul_assign(&mut self, other: f64) {
+            *self = Self {
+                array: [self.array[0] * other, 
+                        self.array[1] * other,
+                        self.array[2] * other],
+            };
+        }
+    }
+
+
+    impl DivAssign<f64> for Vec3 {
+        fn div_assign(&mut self, other: f64) {
+            *self = Self {
+                array: [self.array[0] / other, 
+                        self.array[1] / other,
+                        self.array[2] / other],
+            };
+        }
+    }
+
+type Point3 = Vec3;
 
 
 }
