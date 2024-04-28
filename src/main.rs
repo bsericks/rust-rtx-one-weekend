@@ -1,26 +1,63 @@
 mod vec3;
+mod color;
+mod ray;
 
 use indicatif::{ProgressBar, ProgressStyle};
 
 use crate::vec3::vec3::Vec3;
+use crate::vec3::vec3::unit_vector;
+use crate::vec3::vec3::Point3;
+use crate::color::color::write_color;
+use crate::color::color::Color;
+use crate::ray::ray::Ray;
+use std::io::{self, Write};
+
+
+
+pub fn ray_color(r: &Ray) -> Color {
+    let unit_direction: Vec3 = unit_vector(*r.direction());
+    let a = unit_direction.y()*0.5 + 1.0;
+    Color::new(1.0, 1.0, 1.0)*(1.0-a) + Color::new(0.5, 0.7, 1.0)*a
+}
 
 fn main() {
+
+    let aspect_ratio = 16.0/9.0 as f64;
+    let image_width = 400 as u32;
+
+    // Calculate image height, make sure its at least 1
+    let _image_height = ((image_width as f64)/aspect_ratio) as u32;
+    let image_height = if _image_height < 1 {1} else {_image_height};
+
+    //Camera
+    let focal_length = 1.0;
+    let viewport_height = 2.0;
+    let viewport_width = viewport_height * ((image_width/image_height) as f64);
+    let camera_center = Point3::new(0.0,0.0,0.0);
+
+    //Calculate the vectors across the horizontal and down the vertical viewport edges
+    let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
+    let viewport_v = Vec3::new(0.0, -viewport_width, 0.0);
+
+    //Calculate h and v delta vectors from pixel to pixel
+    let pixel_delta_u = viewport_u / (image_width as f64);
+    let pixel_delta_v = viewport_v / (image_height as f64);
+
+    //Calculate location of upper left pixel
+    let viewport_upper_left = camera_center 
+        - Vec3::new(0.0, 0.0, focal_length)
+        - viewport_u/2.0 - viewport_v/2.0;
+
+    let pixel00_loc = viewport_upper_left + ((pixel_delta_u + pixel_delta_v) * 0.5);
+
+    let mut cout = io::stdout().lock();
+    
     let image_width = 256;
     let image_height = 256;
 
     println!("P3");
     println!("{} {}", image_width, image_height);
     println!("255");
-
-    let v = Vec3::new(1.0, 2.0, 3.0);
-
-    let v2 = Vec3::new(1.0, 2.0, 3.3);
-
-    let mut v3 = v+v2;
-
-    println!("vec3[x] = {}", v3[2]);
-    v3[2] = 1.111;
-    println!("vec3[x] = {}", v3[2]);
 
     // Create a new progress bar with a specified length
     let pb = ProgressBar::new(image_height);
@@ -33,16 +70,20 @@ fn main() {
         pb.inc(1);
 
         for i in 0..image_width {
-            let r = (i as f64 / (image_width-1) as f64) as f64;
-            let g = (j as f64 / (image_height-1) as f64) as f64;
-
-            let b = 0.0;
-
-            let ir = (255.999 * r) as u32;
-            let ig = (255.999 * g) as u32;
-            let ib = (255.999 * b) as u32;
             
-            //println!("{} {} {}", ir, ig, ib);
+            let pixel_center = pixel00_loc + (pixel_delta_u * (i as f64)) + (pixel_delta_v * (j as f64));
+            let ray_direction = pixel_center - camera_center;
+            let r: Ray = Ray::new(camera_center, ray_direction);
+
+            let pixel_color: Color = ray_color(&r);
+
+
+            //let pixel_color = Vec3::new(i as f64 / (image_width-1) as f64, 
+            //                            j as f64 / (image_height-1) as f64,
+            //                            0.0);
+            //auto pixel_color = color(double(i)/(image_width-1), double(j)/(image_height-1), 0);
+            //write_color(std::cout, pixel_color);
+            write_color(&mut cout, pixel_color);
         }
     }
 

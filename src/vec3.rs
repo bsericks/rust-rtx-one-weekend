@@ -43,14 +43,6 @@ pub mod vec3 {
                           u[0] * v[1] - u[1] * v[0]]}
            
         }
-
-        pub fn unit_vector(self, v: Vec3) -> Vec3 {
-            v / v.length()
-        }
-
-
-
-
     }
 
     impl Add for Vec3 {
@@ -164,7 +156,10 @@ pub mod vec3 {
         }
     }
 
-type Point3 = Vec3;
+pub type Point3 = Vec3;
 
+pub fn unit_vector(v: Vec3) -> Vec3 {
+    v / v.length()
+}
 
 }
