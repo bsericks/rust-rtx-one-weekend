@@ -33,9 +33,6 @@ pub mod vec3 {
             self.length_squared().sqrt()
         }
 
-        pub fn dot(self, u: Vec3, v: Vec3) -> f64 {
-            u.x() * v.x() + u.y() * v.y() + u.z() * v.z() 
-        }
 
         pub fn cross(self, u: Vec3, v: Vec3) -> Vec3 {
             Vec3{array: [ u[1] * v[2] - u[2] * v[1],
@@ -161,5 +158,13 @@ pub type Point3 = Vec3;
 pub fn unit_vector(v: Vec3) -> Vec3 {
     v / v.length()
 }
+
+pub fn dot(u: Vec3, v: Vec3) -> f64 {
+    u.x() * v.x() + u.y() * v.y() + u.z() * v.z() 
+}
+
+//pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
+//    u.x() * v.x() + u.y() * v.y() + u.z() * v.z() 
+//}
 
 }
