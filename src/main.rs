@@ -13,36 +13,26 @@ use crate::color::color::Color;
 use crate::ray::ray::Ray;
 use std::io::{self, Write};
 
-
-
-// bool hit_sphere(const point3& center, double radius, const ray& r) {
-//     vec3 oc = center - r.origin();
-//     auto a = dot(r.direction(), r.direction());
-//     auto b = -2.0 * dot(r.direction(), oc);
-//     auto c = dot(oc, oc) - radius*radius;
-//     auto discriminant = b*b - 4*a*c;
-//     return (discriminant >= 0);
-// }
-
 pub fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> f64{
     let oc = center - *r.origin();
-    let a = dot(*r.direction(), *r.direction());
-    let b = -2.0 * dot(*r.direction(), oc);
-    let c = dot(oc, oc) - radius*radius;
-    let discriminant = b*b -4.0*a*c;
 
+    let a = r.direction().length_squared();
+    let h = dot(*r.direction(), oc);
+    let c = oc.length_squared() - radius*radius;
+    let discriminant = h*h - a*c;
+    
     if discriminant < 0.0 {
         return -1.0;
     } else {
-        return (-b - discriminant.sqrt() ) / (2.0*a);
+        return (h - discriminant.sqrt()) / a;
     }
 }
 
 
 pub fn ray_color(r: &Ray) -> Color {
-//    if hit_sphere(Point3::new(0.0,0.0,-1.0), 0.5, r) {
-//        return Color::new(1.0, 0.0, 0.0)
-//    }
+    //if hit_sphere(Point3::new(0.0,0.0,-1.0), 0.5, r) >= 0.0 {
+    //    return Color::new(1.0, 0.0, 0.0)
+    //}
 
     let t = hit_sphere(Point3::new(0.0,0.0,-1.0), 0.5, r);
     
@@ -71,12 +61,13 @@ fn main() {
     //Camera
     let focal_length = 1.0;
     let viewport_height = 2.0;
-    let viewport_width = viewport_height * ((image_width/image_height) as f64);
+    //let viewport_width = viewport_height * ((image_width/image_height) as f64);
+    let viewport_width = aspect_ratio*viewport_height;
     let camera_center = Point3::new(0.0,0.0,0.0);
 
     //Calculate the vectors across the horizontal and down the vertical viewport edges
     let viewport_u = Vec3::new(viewport_width, 0.0, 0.0);
-    let viewport_v = Vec3::new(0.0, -viewport_width, 0.0);
+    let viewport_v = Vec3::new(0.0, -viewport_height, 0.0);
 
     //Calculate h and v delta vectors from pixel to pixel
     let pixel_delta_u = viewport_u / (image_width as f64);
@@ -87,7 +78,7 @@ fn main() {
         - Vec3::new(0.0, 0.0, focal_length)
         - viewport_u/2.0 - viewport_v/2.0;
 
-    let pixel00_loc = viewport_upper_left + ((pixel_delta_u + pixel_delta_v) * 0.5);
+    let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
     let mut cout = io::stdout().lock();
 
