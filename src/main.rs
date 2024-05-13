@@ -7,7 +7,7 @@ mod sphere;
 use indicatif::{ProgressBar, ProgressStyle};
 
 use std::fs::File;
-use std::io::prelude::*;
+
 use std::io::BufWriter;
 use crate::vec3::Vec3;
 use crate::vec3::unit_vector;
@@ -41,8 +41,8 @@ pub fn ray_color(r: &Ray) -> Color {
     let t = hit_sphere(Point3::new(0.0,0.0,-1.0), 0.5, r);
     
     if t > 0.0 {
-        let N = unit_vector((r.at(t) - Vec3::new(0.0,0.0,-1.0)));
-        return Color::new(N.x()+1.0, N.y()+1.0, N.z()+1.0)*0.5
+        let n = unit_vector(r.at(t) - Vec3::new(0.0,0.0,-1.0));
+        return Color::new(n.x()+1.0, n.y()+1.0, n.z()+1.0)*0.5
     }
 
 
@@ -82,15 +82,15 @@ fn main() -> std::io::Result<()> {
 
     let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
-    let mut cout = io::stdout().lock();
+    let _cout = io::stdout().lock();
 
     let file = File::create("pic.ppm")?;
     let mut writer = BufWriter::new(file);
 
-    writer.write_all(b"P3\n");
+    let _ = writer.write_all(b"P3\n");
     let line = format!("{} {}\n", image_width, image_height); // Construct the line as a String
-    writer.write_all(line.as_bytes()); // Write the line to the file
-    writer.write_all(b"255\n");
+    let _ = writer.write_all(line.as_bytes()); // Write the line to the file
+    let _ = writer.write_all(b"255\n");
 
     // Create a new progress bar with a specified length
     let pb = ProgressBar::new(image_height as u64);

@@ -2,7 +2,7 @@ pub mod ray {
 
     use crate::vec3::Vec3;
     use crate::vec3::Point3;
-    use std::io::{self, Write};
+    
     
     #[derive(Copy, Clone)]
     pub struct Ray {

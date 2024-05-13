@@ -10,7 +10,7 @@ pub struct Sphere {
   }
   
     impl Hitable for Sphere {
-        fn hit(&self, r: &Ray, tmin: f32, tmax: f32, hit_record: &mut HitRecord) -> bool {
+        fn hit(&self, r: &Ray, _tmin: f32, _tmax: f32, _hit_record: &mut HitRecord) -> bool {
             let oc = self.center - *r.origin();
             let a = r.direction().length_squared();
             let h = (*r.direction()).dot(oc);
