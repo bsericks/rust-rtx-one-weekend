@@ -1,7 +1,7 @@
 pub mod ray {
 
-    use crate::vec3::vec3::Vec3;
-    use crate::vec3::vec3::Point3;
+    use crate::vec3::Vec3;
+    use crate::vec3::Point3;
     use std::io::{self, Write};
     
     #[derive(Copy, Clone)]
@@ -22,8 +22,8 @@ pub mod ray {
             &self.dir
         }
 
-        pub fn at(self, t: f64) -> Point3 {
-            self.orig + self.dir*t
+        pub fn at(self, t: f32) -> Point3 {
+            self.orig + t*self.dir
         }
 
     }
