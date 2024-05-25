@@ -19,8 +19,24 @@ pub struct Sphere {
             
             if discriminant < 0.0 {
                 return false;
-            } else {
-                return true;
             }
+
+            let sqrtd = discriminant.sqrt();
+
+            let mut root = (h - sqrtd) / a;
+            if root <= _tmin || _tmax <= root {
+                root = (h + sqrtd) / a;
+                if root <= _tmin || _tmax <= root {
+                    return false;
+                }
+            }
+        
+            _hit_record.t = root;
+            _hit_record.p = r.at(_hit_record.t);
+            let outward_normal = (_hit_record.p - self.center) / self.radius;
+            _hit_record.set_face_normal(r, &outward_normal);
+
+            return true;
+        
         }
     }

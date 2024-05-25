@@ -3,6 +3,8 @@ mod color;
 mod ray;
 mod hitable;
 mod sphere;
+mod hittable_list;
+mod rtweekend;
 
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -15,6 +17,8 @@ use crate::vec3::Point3;
 use crate::color::color::write_color;
 use crate::color::color::Color;
 use crate::ray::ray::Ray;
+
+use crate::hittable_list::HittableList;
 use std::io::{self, Write};
 
 pub fn hit_sphere(center: Point3, radius: f32, r: &Ray) -> f32{
