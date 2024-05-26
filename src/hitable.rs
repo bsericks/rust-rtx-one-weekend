@@ -1,5 +1,6 @@
 use crate::ray::ray::Ray;
 use crate::vec3::Vec3;
+use crate::interval::Interval;
 
 #[derive(Clone, Copy)]
 pub struct HitRecord {
@@ -22,11 +23,11 @@ impl HitRecord {
 impl Hitable for HitRecord {
 
   
-  fn hit(&self, _r: &Ray, _tmin: f32, _tmax: f32, _hit_record: &mut HitRecord) -> bool {
+  fn hit(&self, _r: &Ray, ray_t: Interval, _hit_record: &mut HitRecord) -> bool {
     return false
   }
 }
 
 pub trait Hitable : Sync {
-    fn hit(&self, r: &Ray, tmin: f32, tmax: f32, hit_record: &mut HitRecord) -> bool;
+    fn hit(&self, r: &Ray, ray_t: Interval, hit_record: &mut HitRecord) -> bool;
   }

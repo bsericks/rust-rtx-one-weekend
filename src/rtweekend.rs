@@ -1,9 +1,9 @@
 
 
-const INFINITY : f64 = std::f64::INFINITY;
-const PI : f64 = 3.1415926535897932385;
+pub const INFINITY : f32 = std::f32::INFINITY;
+pub const PI : f32 = 3.1415926535897932385;
 
 
-fn degrees_to_radians(degrees: f64) -> f64 {
+pub fn degrees_to_radians(degrees: f32) -> f32 {
     degrees * PI / 180.0
 }
