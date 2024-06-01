@@ -23,7 +23,7 @@ impl HitRecord {
 impl Hitable for HitRecord {
 
   
-  fn hit(&self, _r: &Ray, ray_t: Interval, _hit_record: &mut HitRecord) -> bool {
+  fn hit(&self, _r: &Ray, _ray_t: Interval, _hit_record: &mut HitRecord) -> bool {
     return false
   }
 }
