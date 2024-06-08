@@ -12,16 +12,20 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::io::{self, Write};
 use indicatif::{ProgressBar, ProgressStyle};
+use crate::rtweekend::random_double;
 
 #[derive(Clone, Copy)]
 pub struct Camera {
     pub aspect_ratio: f32,
     pub image_width: u32,
+    pub samples_per_pixel: u32,
     image_height: u32,
     camera_center: vec3::Point3,
     pixel00_loc: vec3::Point3,
     pixel_delta_u: vec3::Vec3,
     pixel_delta_v: vec3::Vec3,
+    pixel_samples_scale: f32,
+    
 }
 
 impl Camera {
@@ -30,6 +34,8 @@ impl Camera {
         Self { aspect_ratio: 1.0,
                 image_width: 400,
                 image_height: 400,
+                samples_per_pixel: 100,
+                pixel_samples_scale: 1.0/100.0,
                 camera_center: vec3::Vec3::new(0.0,0.0,0.0),
                 pixel00_loc: vec3::Point3::new(0.0,0.0,0.0),
                 pixel_delta_u: vec3::Vec3::new(0.0,0.0,0.0),
@@ -61,17 +67,21 @@ impl Camera {
             pb.inc(1);
 
             for i in 0..self.image_width {
+
+                let mut pixel_color: Color = Color::new(0.0, 0.0, 0.0);
+
+                for _sample in 0..self.samples_per_pixel {
+                    let r: Ray = self.get_ray(i, j);
+                    pixel_color += self.ray_color(&r, world);
+    
+                    //if i == 200 && j == 112 {
+                    //    print!("Ray: {} {} {} \n", r.direction()[0], r.direction()[1], r.direction()[2]);
+                    //    print!("Ray: {} {} {} \n", r.origin()[0], r.origin()[1], r.origin()[2]);
+                    //}
+                }
                 
-                let pixel_center = self.pixel00_loc + (self.pixel_delta_u * (i as f32)) + (self.pixel_delta_v * (j as f32));
-                let ray_direction = pixel_center - self.camera_center;
-                let r: Ray = Ray::new(self.camera_center, ray_direction);
 
-                print!("Ray: {} {} {} \n", r.direction()[0], r.direction()[1], r.direction()[2]);
-                print!("Ray: {} {} {} \n", r.origin()[0], r.origin()[1], r.origin()[2]);
-
-                let pixel_color: Color = self.ray_color(&r, world);
-
-                write_color(&mut writer, pixel_color);
+                write_color(&mut writer, self.pixel_samples_scale * pixel_color);
             }
         }
         Ok(())
@@ -122,4 +132,21 @@ impl Camera {
         let a = unit_direction.y()*0.5 + 1.0;
         Color::new(1.0, 1.0, 1.0)*(1.0-a) + Color::new(0.5, 0.7, 1.0)*a
     }
+
+    fn get_ray(&self, i: u32, j: u32) -> Ray {
+        let offset = self.sample_square();
+        let pixel_sample = self.pixel00_loc
+                            + ((offset.x() + i as f32) * self.pixel_delta_u)
+                            + ((offset.y() + j as f32) * self.pixel_delta_v);
+        let ray_origin = self.camera_center;
+        let ray_direction = pixel_sample - ray_origin;
+
+        return Ray::new(ray_origin, ray_direction);
+
+    }
+
+    fn sample_square(&self) -> vec3::Vec3 {
+        return vec3::Vec3::new(random_double(0.0, 1.0) - 0.5, random_double(0.0, 1.0) - 0.5, 0.0);
+    }
+
 }
