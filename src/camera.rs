@@ -19,6 +19,7 @@ pub struct Camera {
     pub aspect_ratio: f32,
     pub image_width: u32,
     pub samples_per_pixel: u32,
+    pub max_depth: u32,
     image_height: u32,
     camera_center: vec3::Point3,
     pixel00_loc: vec3::Point3,
@@ -34,6 +35,7 @@ impl Camera {
         Self { aspect_ratio: 1.0,
                 image_width: 400,
                 image_height: 400,
+                max_depth: 10,
                 samples_per_pixel: 100,
                 pixel_samples_scale: 1.0/100.0,
                 camera_center: vec3::Vec3::new(0.0,0.0,0.0),
@@ -72,7 +74,7 @@ impl Camera {
 
                 for _sample in 0..self.samples_per_pixel {
                     let r: Ray = self.get_ray(i, j);
-                    pixel_color += self.ray_color(&r, world);
+                    pixel_color += self.ray_color(&r, self.max_depth, world);
     
                     //if i == 200 && j == 112 {
                     //    print!("Ray: {} {} {} \n", r.direction()[0], r.direction()[1], r.direction()[2]);
@@ -118,14 +120,20 @@ impl Camera {
         
     }
 
-    fn ray_color(&self, r: &Ray, world: &dyn Hitable) -> Color {
+    fn ray_color(&self, r: &Ray, depth: u32, world: &dyn Hitable) -> Color {
+        if depth <= 0 {
+            return Color::new(0.0,0.0,0.0);
+        }
+
         let mut rec = hitable::HitRecord { t : 0.0, 
             p : vec3::Vec3::new(0.0, 0.0, 0.0), 
             normal : vec3::Vec3::new(0.0, 0.0, 0.0), 
             front_face : true  };
         
-        if world.hit(r, interval::Interval::new_with_bounds(0.0, INFINITY), &mut rec) {
-            return rec.normal + Color::new(1.0, 1.0, 1.0) * 0.5;
+        if world.hit(r, interval::Interval::new_with_bounds(0.001, INFINITY), &mut rec) {
+            let direction = vec3::random_on_hemisphere(rec.normal);
+            return 0.5* self.ray_color(&Ray::new(rec.p, direction), depth-1, world);
+            //return rec.normal + Color::new(1.0, 1.0, 1.0) * 0.5;
         }
     
         let unit_direction: vec3::Vec3 = vec3::unit_vector(*r.direction());
