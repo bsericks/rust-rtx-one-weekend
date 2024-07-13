@@ -131,8 +131,9 @@ impl Camera {
             front_face : true  };
         
         if world.hit(r, interval::Interval::new_with_bounds(0.001, INFINITY), &mut rec) {
-            let direction = vec3::random_on_hemisphere(rec.normal);
-            return 0.5* self.ray_color(&Ray::new(rec.p, direction), depth-1, world);
+            //let direction = vec3::random_on_hemisphere(rec.normal);
+            let direction = rec.normal + vec3::random_unit_vector();
+            return 0.7* self.ray_color(&Ray::new(rec.p, direction), depth-1, world);
             //return rec.normal + Color::new(1.0, 1.0, 1.0) * 0.5;
         }
     

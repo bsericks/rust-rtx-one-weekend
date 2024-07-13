@@ -9,11 +9,23 @@ use crate::Interval;
 
 pub type Color = Vec3;
 
+
+pub fn linear_to_gamma(linear_component: f32) -> f32 
+{
+    if linear_component > 0.0
+    {
+        return linear_component.sqrt();
+    }
+
+    return 0.0;
+}
+
 pub fn write_color( writer: &mut BufWriter<File>, color: Color )
 {
-    let r = color.x();
-    let g = color.y();
-    let b = color.z();
+    let r = linear_to_gamma(color.x());
+    let g = linear_to_gamma(color.y());
+    let b = linear_to_gamma(color.z());
+
 
     let intensity = Interval::new_with_bounds(0.000, 0.999);
     let rbyte = (255.999 * intensity.clamp(r)) as u32;
