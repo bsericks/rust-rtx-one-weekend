@@ -1,13 +1,17 @@
 use crate::ray::ray::Ray;
 use crate::vec3::Vec3;
 use crate::interval::Interval;
+use crate::material::Material;
+//Thread safe reference counting pointer
+use std::sync::Arc;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct HitRecord {
   pub t: f32,
   pub p: Vec3,
   pub normal: Vec3,
   pub front_face: bool,
+  pub mat: Arc<Material>,
 }
 
 impl HitRecord {

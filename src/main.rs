@@ -7,9 +7,11 @@ mod hittable_list;
 mod interval;
 mod rtweekend;
 mod camera;
+mod material;
 
 use crate::camera::Camera;
-
+use std::sync::Arc;
+use crate::material::Material;
 use crate::sphere::Sphere;
 
 use crate::vec3::Vec3;
@@ -23,9 +25,9 @@ fn main() -> () {
     // World
     let mut world = HittableList::new();
 
-    let sphere1 = Sphere { center: Point3::new(0.0,0.0,-1.0), radius: 0.5};
+    let sphere1 = Sphere { center: Point3::new(0.0,0.0,-1.0), radius: 0.5, mat: Arc::new(Material{})};
     world.add(&sphere1);
-    let sphere2 = Sphere { center: Point3::new(0.0,-100.5,-1.0), radius: 100.0};
+    let sphere2 = Sphere { center: Point3::new(0.0,-100.5,-1.0), radius: 100.0, mat: Arc::new(Material{})};
     world.add(&sphere2);
 
     let mut cam = Camera::new();

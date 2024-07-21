@@ -45,6 +45,12 @@ impl Vec3 {
     self.e[0]*self.e[0] + self.e[1]*self.e[1] + self.e[2]*self.e[2]
   }
 
+  pub fn near_zero(&self) -> bool {
+    let s = 1e-8;
+    (self.e[0].abs() < s) && (self.e[0].abs() < s) && (self.e[0].abs() < s)
+  }
+
+
   pub fn dot(&self, v2: Vec3) -> f32 {
     self.e[0] * v2.e[0] + self.e[1] * v2.e[1] + self.e[2] * v2.e[2]
   }
