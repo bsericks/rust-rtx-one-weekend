@@ -11,7 +11,7 @@ pub struct HitRecord {
   pub p: Vec3,
   pub normal: Vec3,
   pub front_face: bool,
-  pub mat: Arc<Material>,
+  pub mat: Arc<dyn Material>,
 }
 
 impl HitRecord {

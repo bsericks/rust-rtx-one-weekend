@@ -9,13 +9,7 @@ use crate::material::Material;
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
-    pub mat: Arc<Material>,
-}
-
-impl Sphere {
-    pub fn new() -> Sphere {
-        Sphere {center: Vec3::new(0.0, 0.0, 0.0), radius: 0.0, mat: Arc::new(Material{})}
-    }
+    pub mat: Arc<dyn Material>,
 }
 
 impl Hitable for Sphere {

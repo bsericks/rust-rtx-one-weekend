@@ -1,8 +1,10 @@
 use crate::hitable::HitRecord;
 use crate::hitable::Hitable;
+use crate::material::Lambertian;
 use crate::ray::ray::Ray;
 use crate::Interval;
 use crate::Vec3;
+use std::sync::Arc;
 use std::vec::Vec;
 use crate::material::Material;
 
@@ -33,7 +35,7 @@ impl Hitable for HittableList<'_> {
             p: Vec3::new(0.0, 0.0, 0.0),
             normal: Vec3::new(0.0, 0.0, 0.0),
             front_face: true,
-            mat: Material::new().into(),
+            mat: Arc::new(Lambertian{ albedo: Vec3::new(0.0,0.0,0.0) }),
         };
         let mut hit_anything = false;
         let mut closest_so_far = ray_t.max;

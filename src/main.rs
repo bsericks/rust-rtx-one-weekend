@@ -9,6 +9,10 @@ mod rtweekend;
 mod camera;
 mod material;
 
+use color::color::Color;
+use material::Lambertian;
+use material::Metal;
+
 use crate::camera::Camera;
 use std::sync::Arc;
 use crate::material::Material;
@@ -25,14 +29,26 @@ fn main() -> () {
     // World
     let mut world = HittableList::new();
 
-    let sphere1 = Sphere { center: Point3::new(0.0,0.0,-1.0), radius: 0.5, mat: Arc::new(Material{})};
-    world.add(&sphere1);
-    let sphere2 = Sphere { center: Point3::new(0.0,-100.5,-1.0), radius: 100.0, mat: Arc::new(Material{})};
-    world.add(&sphere2);
+
+
+    let material_ground = Arc::new(Lambertian::new(Color::new(0.8,0.8,0.0)));
+    let material_center = Arc::new(Lambertian::new(Color::new(0.1,0.2,0.5)));
+    let material_left   = Arc::new(Metal::new(Color::new(0.8,0.8,0.8)));
+    let material_right  = Arc::new(Metal::new(Color::new(0.8,0.6,0.2)));
+
+    let ground = Sphere { center: Point3::new(0.0,-100.5,-1.0), radius: 100.0, mat: material_ground};
+    world.add(&ground);
+    let center = Sphere { center: Point3::new(0.0,0.0,-1.2), radius: 0.5, mat: material_center};
+    world.add(&center);
+    let left = Sphere { center: Point3::new(-1.0,0.0,-1.0), radius: 0.5, mat: material_left};
+    world.add(&left);
+    let right = Sphere { center: Point3::new(1.0,0.0,-1.0), radius: 0.5, mat: material_right};
+    world.add(&right);
+
 
     let mut cam = Camera::new();
     cam.aspect_ratio = 16.0/9.0;
-    cam.image_width = 400;
+    cam.image_width = 1200;
 
     let _ = cam.render(&world);
 }

@@ -1,6 +1,7 @@
 
 use crate::hitable::Hitable;
 use crate::color::color::Color;
+use crate::material::Lambertian;
 use crate::ray::ray::Ray;
 use crate::vec3;
 use crate::hitable;
@@ -12,6 +13,7 @@ use crate::material::Material;
 use std::fs::File;
 use std::io::BufWriter;
 use std::io::{self, Write};
+use std::sync::Arc;
 use indicatif::{ProgressBar, ProgressStyle};
 use crate::rtweekend::random_double;
 
@@ -129,12 +131,23 @@ impl Camera {
         let mut rec = hitable::HitRecord { t : 0.0, 
             p : vec3::Vec3::new(0.0, 0.0, 0.0), 
             normal : vec3::Vec3::new(0.0, 0.0, 0.0), 
-            front_face : true, mat: Material::new().into(),  };
+            front_face : true, mat: Arc::new(Lambertian{ albedo: vec3::Vec3::new(0.0,0.0,0.0) })  };
         
         if world.hit(r, interval::Interval::new_with_bounds(0.001, INFINITY), &mut rec) {
-            //let direction = vec3::random_on_hemisphere(rec.normal);
-            let direction = rec.normal + vec3::random_unit_vector();
-            return 0.5* self.ray_color(&Ray::new(rec.p, direction), depth-1, world);
+            let mut scattered = Ray::new(vec3::Vec3::new(0.0,0.0,0.0), vec3::Vec3::new(0.0,0.0,0.0));
+            let mut attenuation = Color::new(0.0, 0.0, 0.0);
+
+            if rec.mat.scatter(r, &rec, &mut attenuation, &mut scattered) {
+                //print!("Ray: {} {} {} \n", attenuation.x(), attenuation.y(), attenuation.z());
+                //print!("Ray: {} {} {} \n", scattered.direction()[0], scattered.direction()[1], scattered.direction()[2]);
+                //print!("Ray: {} {} {} \n", scattered.origin()[0], scattered.origin()[1], scattered.origin()[2]);
+                return attenuation * self.ray_color(&scattered, depth-1, world);
+            }
+            return Color::new(0.0, 0.0, 0.0);
+
+
+            //let direction = rec.normal + vec3::random_unit_vector();
+            //return 0.5* self.ray_color(&Ray::new(rec.p, direction), depth-1, world);
             //return rec.normal + Color::new(1.0, 1.0, 1.0) * 0.5;
         }
     
