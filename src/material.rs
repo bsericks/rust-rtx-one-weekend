@@ -1,7 +1,7 @@
 use crate::color::color::Color;
 use crate::hitable::HitRecord;
 use crate::ray::ray::Ray;
-use crate::rtweekend;
+use crate::rtweekend::{self, random_double};
 use crate::vec3::{random_unit_vector, reflect, refract, unit_vector, Vec3};
 
 pub trait Material: Sync + Send {
@@ -79,6 +79,12 @@ impl Dielectric {
     pub fn new(refraction_index: f32) -> Dielectric {
         Dielectric { refraction_index }
     }
+
+    fn reflectance(cosine: f32, refraction_index: f32 ) -> f32 {
+        let mut r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+        r0 = r0*r0;
+        return r0 + (1.0 - r0)*((1.0 - cosine).powf(5.0));
+    }
 }
 
 impl Material for Dielectric {
@@ -105,7 +111,7 @@ impl Material for Dielectric {
 
         let mut _direction = Vec3::new(1.0, 1.0, 1.0);
 
-        if cannot_refract {
+        if cannot_refract || Dielectric::reflectance(cos_theta, ri) > random_double(0.0, 1.0) {
             _direction = reflect(&unit_direction, &rec.normal);
         }
         else {

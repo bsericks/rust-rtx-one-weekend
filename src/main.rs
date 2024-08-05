@@ -33,7 +33,8 @@ fn main() -> () {
 
     let material_ground = Arc::new(Lambertian::new(Color::new(0.8,0.8,0.0)));
     let material_center = Arc::new(Lambertian::new(Color::new(0.1,0.2,0.5)));
-    let material_left   = Arc::new(Dielectric::new(1.0/1.33));
+    let material_left   = Arc::new(Dielectric::new(1.5));
+    let material_bubble   = Arc::new(Dielectric::new(1.0/1.5));
     let material_right  = Arc::new(Metal::new(Color::new(0.8,0.6,0.2)));
 
     let ground = Sphere { center: Point3::new(0.0,-100.5,-1.0), radius: 100.0, mat: material_ground};
@@ -42,6 +43,8 @@ fn main() -> () {
     world.add(&center);
     let left = Sphere { center: Point3::new(-1.0,0.0,-1.0), radius: 0.5, mat: material_left};
     world.add(&left);
+    let bubble = Sphere { center: Point3::new(-1.0,0.0,-1.0), radius: 0.4, mat: material_bubble};
+    world.add(&bubble);
     let right = Sphere { center: Point3::new(1.0,0.0,-1.0), radius: 0.5, mat: material_right};
     world.add(&right);
 
