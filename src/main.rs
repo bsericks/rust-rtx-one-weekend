@@ -52,6 +52,10 @@ fn main() -> () {
     let mut cam = Camera::new();
     cam.aspect_ratio = 16.0/9.0;
     cam.image_width = 400;
+    cam.vfov     = 90.0;
+    cam.lookfrom = Point3::new(-2.0,2.0,1.0);
+    cam.lookat   = Point3::new(0.0,0.0,-1.0);
+    cam.vup      = Point3::new(0.0,1.0,0.0);
 
     let _ = cam.render(&world);
 }
