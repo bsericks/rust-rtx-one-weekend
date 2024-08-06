@@ -9,7 +9,7 @@ use crate::hitable;
 use crate::interval;
 use crate::rtweekend::INFINITY;
 use crate::color::color::write_color;
-use crate::material::Material;
+use crate::vec3::random_in_unit_disk;
 
 use std::fs::File;
 use std::io::BufWriter;
@@ -28,13 +28,16 @@ pub struct Camera {
     pub lookfrom: vec3::Point3,
     pub lookat: vec3::Point3,
     pub vup: vec3::Vec3,
+    pub defocus_angle: f32,
+    pub focus_dist: f32,
     image_height: u32,
     camera_center: vec3::Point3,
     pixel00_loc: vec3::Point3,
     pixel_delta_u: vec3::Vec3,
     pixel_delta_v: vec3::Vec3,
     pixel_samples_scale: f32,
-    
+    defocus_disk_u: vec3::Vec3,
+    defocus_disk_v: vec3::Vec3,
 }
 
 impl Camera {
@@ -48,12 +51,16 @@ impl Camera {
                 lookfrom: vec3::Point3::new(0.0,0.0,0.0),
                 lookat: vec3::Point3::new(0.0,0.0,-1.0),
                 vup: vec3::Vec3::new(0.0,1.0,0.0),
+                defocus_angle: 0.0,
+                focus_dist: 0.0,
                 samples_per_pixel: 100,
                 pixel_samples_scale: 1.0/100.0,
                 camera_center: vec3::Vec3::new(0.0,0.0,0.0),
                 pixel00_loc: vec3::Point3::new(0.0,0.0,0.0),
                 pixel_delta_u: vec3::Vec3::new(0.0,0.0,0.0),
-                pixel_delta_v: vec3::Vec3::new(0.0,0.0,0.0), }
+                pixel_delta_v: vec3::Vec3::new(0.0,0.0,0.0),
+                defocus_disk_u: vec3::Vec3::new(0.0,0.0,0.0),
+                defocus_disk_v: vec3::Vec3::new(0.0,0.0,0.0), }
     }
     
     pub fn render(&mut self, world: &dyn Hitable) -> std::io::Result<()> {
@@ -110,10 +117,9 @@ impl Camera {
         self.camera_center = self.lookfrom;
 
         //Camera
-        let focal_length = (self.lookfrom - self.lookat).length();
         let theta = degrees_to_radians(self.vfov);
         let h = (theta/2.0).tan();
-        let viewport_height = 2.0 * h * focal_length;
+        let viewport_height = 2.0 * h * self.focus_dist;
         //let viewport_width = viewport_height * ((image_width/image_height) as f32);
         let viewport_width = self.aspect_ratio*viewport_height;
 
@@ -134,7 +140,11 @@ impl Camera {
         //    - vec3::Vec3::new(0.0, 0.0, focal_length)
         //    - viewport_u/2.0 - viewport_v/2.0;
 
-        let viewport_upper_left = self.camera_center - (focal_length * w) - viewport_u/2.0 - viewport_v/2.0;
+        let viewport_upper_left = self.camera_center - (self.focus_dist * w) - viewport_u/2.0 - viewport_v/2.0;
+
+        let defocus_radius = self.focus_dist * (degrees_to_radians(self.defocus_angle / 2.0)).tan();
+        self.defocus_disk_u = u * defocus_radius;
+        self.defocus_disk_v = v * defocus_radius;
 
         self.pixel00_loc = viewport_upper_left + 0.5 * (self.pixel_delta_u + self.pixel_delta_v);
         
@@ -174,15 +184,28 @@ impl Camera {
     }
 
     fn get_ray(&self, i: u32, j: u32) -> Ray {
+        // Construct a camera ray originating from the defocus disk and directed at a randomly
+        // sampled point around the pixel location i, j.
+
         let offset = self.sample_square();
         let pixel_sample = self.pixel00_loc
                             + ((offset.x() + i as f32) * self.pixel_delta_u)
                             + ((offset.y() + j as f32) * self.pixel_delta_v);
-        let ray_origin = self.camera_center;
+        let _ray_origin = self.camera_center;
+
+        let mut ray_origin = self.defocus_disk_sample();
+        if self.defocus_angle <= 0.0 {
+            ray_origin = self.camera_center;
+        } 
         let ray_direction = pixel_sample - ray_origin;
 
         return Ray::new(ray_origin, ray_direction);
 
+    }
+
+    fn defocus_disk_sample(&self) -> vec3::Point3 {
+        let p = random_in_unit_disk();
+        self.camera_center + (p[0] * self.defocus_disk_u) + (p[1] * self.defocus_disk_v)
     }
 
     fn sample_square(&self) -> vec3::Vec3 {

@@ -6,14 +6,13 @@ use crate::Interval;
 use crate::Vec3;
 use std::sync::Arc;
 use std::vec::Vec;
-use crate::material::Material;
 
-pub struct HittableList<'a> {
-    pub objects: Vec<&'a dyn Hitable>,
+pub struct HittableList {
+    pub objects: Vec<Box<dyn Hitable>>,
 }
 
-impl<'a> HittableList<'a> {
-    pub fn new() -> HittableList<'a> {
+impl HittableList {
+    pub fn new() -> HittableList {
         HittableList {
             objects: Vec::new(),
         }
@@ -23,12 +22,12 @@ impl<'a> HittableList<'a> {
         self.objects.clear();
     }
 
-    pub fn add(&mut self, object: &'a dyn Hitable) {
+    pub fn add(&mut self, object: Box<dyn Hitable>) {
         self.objects.push(object);
     }
 }
 
-impl Hitable for HittableList<'_> {
+impl Hitable for HittableList {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
         let mut temp_rec = HitRecord {
             t: 0.0,

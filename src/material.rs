@@ -1,7 +1,7 @@
 use crate::color::color::Color;
 use crate::hitable::HitRecord;
 use crate::ray::ray::Ray;
-use crate::rtweekend::{self, random_double};
+use crate::rtweekend::{random_double};
 use crate::vec3::{random_unit_vector, reflect, refract, unit_vector, Vec3};
 
 pub trait Material: Sync + Send {
@@ -27,7 +27,7 @@ impl Lambertian {
 impl Material for Lambertian {
     fn scatter(
         &self,
-        r_in: &Ray,
+        _r_in: &Ray,
         rec: &HitRecord,
         attenuation: &mut Color,
         scattered: &mut Ray,
@@ -46,11 +46,12 @@ impl Material for Lambertian {
 
 pub struct Metal {
     albedo: Color,
+    fuzz: f32,
 }
 
 impl Metal {
-    pub fn new(albedo: Color) -> Metal {
-        Metal { albedo }
+    pub fn new(albedo: Color, fuzz: f32) -> Metal {
+        Metal { albedo, fuzz }
     }
 }
 
@@ -63,10 +64,10 @@ impl Material for Metal {
         scattered: &mut Ray,
     ) -> bool {
         let mut reflected = reflect(r_in.direction(), &rec.normal);
-
+        reflected = unit_vector(reflected) + (self.fuzz * random_unit_vector());
         *scattered = Ray::new(rec.p, reflected);
         *attenuation = self.albedo;
-        true
+        return scattered.direction().dot(rec.normal) > 0.0;
     }
 }
 
